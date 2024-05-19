@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.realm.plugin)
 }
 
 kotlin {
@@ -15,19 +14,8 @@ kotlin {
             }
         }
     }
-    
+
     jvm("desktop")
-    
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
     
     sourceSets {
         val desktopMain by getting
@@ -43,16 +31,6 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-
-            implementation(libs.navigator)
-            implementation(libs.navigator.screen.model)
-            implementation(libs.navigator.transitions)
-            implementation(libs.navigator.koin)
-            implementation(libs.koin.core)
-
-            implementation(libs.mongodb.realm)
-            implementation(libs.kotlin.coroutines)
-            implementation(libs.stately.common)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -95,6 +73,7 @@ android {
 }
 
 compose.desktop {
+
     application {
         mainClass = "MainKt"
 
