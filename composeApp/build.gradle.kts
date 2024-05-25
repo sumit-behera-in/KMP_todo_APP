@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.realm.plugin)
 }
 
 kotlin {
@@ -16,10 +17,10 @@ kotlin {
     }
 
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
@@ -31,6 +32,17 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
+            implementation(libs.navigator)
+            implementation(libs.navigator.screen.model)
+            implementation(libs.navigator.transitions)
+            implementation(libs.navigator.koin)
+            implementation(libs.koin.core)
+
+            implementation(libs.mongodb.realm)
+            implementation(libs.kotlin.coroutines)
+            implementation(libs.stately.common)
+
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -69,18 +81,40 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+        testImplementation(libs.junit)
+        androidTestImplementation(libs.androidx.test.junit)
     }
 }
 
 compose.desktop {
-
     application {
         mainClass = "MainKt"
+        jvmArgs += listOf("-Xmx2G")
+        args += listOf("-customArgument")
+        javaHome = System.getenv("JDK_17")
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "sumit.kmp.todo"
+            targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)
+            packageName = "Todo App"
             packageVersion = "1.0.0"
+            windows {
+                // a version for all Windows distributables
+                packageVersion = "1.0.0"
+                // a version only for the exe package
+                exePackageVersion = "1.0.0"
+                msiPackageVersion = "1.0.0"
+
+                menuGroup = "start-menu-group"
+
+                iconFile.set(project.file("icons/Logo.ico"))
+            }
+            outputBaseDir.set(project.buildDir.resolve("customOutputDir"))
+
+        }
+
+        buildTypes.release.proguard {
+            optimize.set(true)
+            obfuscate.set(true)
         }
     }
 }
