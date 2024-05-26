@@ -22,7 +22,7 @@ class RealmDb {
         }
     }
 
-    fun readAllTasks(): Flow<RequestState<List<ToDoTask>>> {
+    fun readActiveTasks(): Flow<RequestState<List<ToDoTask>>> {
         return realm?.query<ToDoTask>(query = "completed == $0", false)?.asFlow()
             ?.map { result ->
                 RequestState.Success(result.list.sortedByDescending { task -> task.favorite })

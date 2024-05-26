@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ErrorScreen(modifier: Modifier = Modifier, message: String?) {
+fun ErrorScreen(modifier: Modifier = Modifier, message: String? = null) {
     Box(
         modifier = modifier
             .fillMaxSize()
