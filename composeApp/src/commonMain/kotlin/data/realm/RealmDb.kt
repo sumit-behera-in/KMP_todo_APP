@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.map
 
 class RealmDb {
 
-    var realm: Realm? = null
+    private var realm: Realm? = null
 
-    private fun configure() {
+    init {
         if (realm == null || realm?.isClosed() == true) {
             val config = RealmConfiguration.Builder(schema = setOf(ToDoTask::class))
                 .compactOnLaunch()
@@ -40,18 +40,69 @@ class RealmDb {
         }
     }
 
-    suspend fun addTask(task: ToDoTask) {
-        realm?.write { copyToRealm(task) }
+    private suspend fun addTask(task: ToDoTask) {
+        try {
+            realm?.write { copyToRealm(task) }
+        } catch (e: Exception) {
+            RequestState.Error(e.message ?: "Realm not found")
+        }
     }
 
     fun deleteTask(task: ToDoTask) {
         realm?.writeBlocking {
-            val results = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.find()
-            if (results != null) {
-                delete(results)
-            } else {
-                RequestState.Error("Task not found")
+            try {
+                val results = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.find()
+                if (results != null) {
+                    delete(results)
+                } else {
+                    throw IllegalArgumentException("Task not found")
+                }
+            } catch (e: Exception) {
+                RequestState.Error(e.message ?: "Task not found")
             }
         }
     }
+
+    suspend fun updateTask(task: ToDoTask) {
+        try {
+            realm?.write {
+                val results = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.first()?.find()
+                if (results != null) {
+                    results.title = task.title
+                    results.description = task.description
+                    results.isCompleted = task.isCompleted
+                    results.favorite = task.favorite
+                } else {
+                    throw IllegalArgumentException("Task not found")
+                }
+            }
+        } catch (e: Exception) {
+            if (e.message == "Task not found") {
+                addTask(task)
+            } else {
+                RequestState.Error(e.message ?: "Realm not found")
+            }
+        }
+    }
+
+    suspend fun setTaskFavorite(task: ToDoTask, isFavorite: Boolean) {
+        realm?.write {
+            val result = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.first()?.find()
+            result?.apply {
+                favorite = isFavorite
+            } ?: RequestState.Error("Task not found")
+        }
+    }
+
+    suspend fun setTaskCompleted(task: ToDoTask, isTaskCompleted: Boolean) {
+        realm?.write {
+            val result = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.first()?.find()
+            result?.apply {
+                isCompleted = isTaskCompleted
+            } ?: RequestState.Error("Task not found")
+        }
+    }
+
 }
+
+
