@@ -23,7 +23,7 @@ class RealmDb {
     }
 
     fun readActiveTasks(): Flow<RequestState<List<ToDoTask>>> {
-        return realm?.query<ToDoTask>(query = "completed == $0", false)?.asFlow()
+        return realm?.query<ToDoTask>(query = "isCompleted == $0", false)?.asFlow()
             ?.map { result ->
                 RequestState.Success(result.list.sortedByDescending { task -> task.favorite })
             } ?: flow {
@@ -32,7 +32,7 @@ class RealmDb {
     }
 
     fun readAllCompletedTasks(): Flow<RequestState<List<ToDoTask>>> {
-        return realm?.query<ToDoTask>(query = "completed == $0", true)?.asFlow()
+        return realm?.query<ToDoTask>(query = "isCompleted == $0", true)?.asFlow()
             ?.map { result ->
                 RequestState.Success(result.list.sortedByDescending { task -> task.favorite })
             } ?: flow {
@@ -40,7 +40,7 @@ class RealmDb {
         }
     }
 
-    private suspend fun addTask(task: ToDoTask) {
+    suspend fun addTask(task: ToDoTask) {
         try {
             realm?.write { copyToRealm(task) }
         } catch (e: Exception) {
@@ -48,15 +48,11 @@ class RealmDb {
         }
     }
 
-    fun deleteTask(task: ToDoTask) {
-        realm?.writeBlocking {
+    suspend fun deleteTask(task: ToDoTask) {
+        realm?.write {
             try {
-                val results = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.find()
-                if (results != null) {
-                    delete(results)
-                } else {
-                    throw IllegalArgumentException("Task not found")
-                }
+                val results = this.query<ToDoTask>(query = "_Id == $0", task._Id).find()
+                delete(results)
             } catch (e: Exception) {
                 RequestState.Error(e.message ?: "Task not found")
             }
@@ -66,15 +62,11 @@ class RealmDb {
     suspend fun updateTask(task: ToDoTask) {
         try {
             realm?.write {
-                val results = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.first()?.find()
-                if (results != null) {
-                    results.title = task.title
-                    results.description = task.description
-                    results.isCompleted = task.isCompleted
-                    results.favorite = task.favorite
-                } else {
-                    throw IllegalArgumentException("Task not found")
-                }
+                val results = this.query<ToDoTask>(query = "_Id == $0", task._Id).find().first()
+                results.title = task.title
+                results.description = task.description
+                results.isCompleted = task.isCompleted
+                results.favorite = task.favorite
             }
         } catch (e: Exception) {
             if (e.message == "Task not found") {
@@ -87,19 +79,19 @@ class RealmDb {
 
     suspend fun setTaskFavorite(task: ToDoTask, isFavorite: Boolean) {
         realm?.write {
-            val result = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.first()?.find()
-            result?.apply {
+            val result = this.query<ToDoTask>(query = "_Id == $0", task._Id).find().first()
+            result.apply {
                 favorite = isFavorite
-            } ?: RequestState.Error("Task not found")
+            }
         }
     }
 
     suspend fun setTaskCompleted(task: ToDoTask, isTaskCompleted: Boolean) {
         realm?.write {
-            val result = realm?.query<ToDoTask>(query = "_id == $0", task._Id)?.first()?.find()
-            result?.apply {
+            val result = this.query<ToDoTask>(query = "_Id == $0", task._Id).find().first()
+            result.apply {
                 isCompleted = isTaskCompleted
-            } ?: RequestState.Error("Task not found")
+            }
         }
     }
 

@@ -8,9 +8,11 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import data.realm.RealmDb
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import presentation.screen.home.HomeScreen
 import presentation.screen.home.HomeScreenViewModel
+import presentation.screen.task.TaskViewModel
 import presentation.theme.darkScheme
 import presentation.theme.lightScheme
 
@@ -39,10 +41,12 @@ val realmModule = module {
     single { RealmDb() }
     // Viewmodel factory
     factory { HomeScreenViewModel(get()) }
+    factory { TaskViewModel(get()) }
 
 }
 
 fun initKoin() {
+    stopKoin()
     startKoin {
         modules(realmModule)
     }

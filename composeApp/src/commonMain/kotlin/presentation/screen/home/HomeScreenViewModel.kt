@@ -40,5 +40,25 @@ class HomeScreenViewModel(private val realm: RealmDb) : ScreenModel {
             }
         }
 
+
+    }
+
+    fun deleteTask(task: ToDoTask) {
+        screenModelScope.launch(Dispatchers.IO) {
+            realm.deleteTask(task = task)
+        }
+
+    }
+
+    fun setFavorite(task: ToDoTask, favorite: Boolean) {
+        screenModelScope.launch(Dispatchers.IO) {
+            realm.setTaskFavorite(task = task, isFavorite = favorite)
+        }
+    }
+
+    fun setCompleted(task: ToDoTask, completed: Boolean) {
+        screenModelScope.launch(Dispatchers.IO) {
+            realm.setTaskCompleted(task = task, isTaskCompleted = completed)
+        }
     }
 }
