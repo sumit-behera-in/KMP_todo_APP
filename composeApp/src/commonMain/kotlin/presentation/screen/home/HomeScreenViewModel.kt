@@ -26,14 +26,14 @@ class HomeScreenViewModel(private val realm: RealmDb) : ScreenModel {
         _activeTasks.value = RequestState.Loading
         _completedTasks.value = RequestState.Loading
 
-        screenModelScope.launch(Dispatchers.Main) {
+        screenModelScope.launch(Dispatchers.IO) {
             delay(500)
             realm.readActiveTasks().collectLatest {
                 _activeTasks.value = it
             }
         }
 
-        screenModelScope.launch(Dispatchers.Main) {
+        screenModelScope.launch(Dispatchers.IO) {
             delay(500)
             realm.readAllCompletedTasks().collectLatest {
                 _completedTasks.value = it

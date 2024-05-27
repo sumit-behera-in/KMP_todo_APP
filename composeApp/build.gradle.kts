@@ -41,6 +41,7 @@ kotlin {
 
             implementation(libs.mongodb.realm)
             implementation(libs.kotlin.coroutines)
+            implementation(libs.kotlin.coroutines.androi)
             implementation(libs.stately.common)
 
         }

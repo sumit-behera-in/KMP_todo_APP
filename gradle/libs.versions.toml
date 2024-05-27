@@ -40,6 +40,8 @@ navigator-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "v
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 mongodb-realm = { module = "io.realm.kotlin:library-base", version.ref = "realm" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlin-coroutines-androi = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+
 stately-common = { module = "co.touchlab:stately-common", version.ref = "stately" }
 
 [plugins]

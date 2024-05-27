@@ -19,6 +19,7 @@ import presentation.theme.lightScheme
 @Composable
 @Preview
 fun App() {
+    
     initKoin()
 
     // Theme
@@ -40,8 +41,8 @@ val realmModule = module {
     // singleton
     single { RealmDb() }
     // Viewmodel factory
-    factory { HomeScreenViewModel(get()) }
-    factory { TaskViewModel(get()) }
+    single { HomeScreenViewModel(get()) }
+    single { TaskViewModel(get()) }
 
 }
 
